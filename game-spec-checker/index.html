@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>這台能不能玩？— 遊戲配備檢測</title>
+<meta name="description" content="選一款遊戲、填你的手機或電腦硬體，對照官方最低與建議配備，直接告訴你：不可、勉強、可玩、順暢或極佳。">
+<meta name="theme-color" content="#152238">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='27' fill='none' stroke='%231F5AA6' stroke-width='5'/%3E%3Ccircle cx='32' cy='32' r='20' fill='none' stroke='%231F5AA6' stroke-width='2'/%3E%3Ctext x='32' y='41' text-anchor='middle' font-family='serif' font-weight='900' font-size='24' fill='%231F5AA6'%3E驗%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="wrap">
+  <header class="masthead">
+    <div>
+      <h1><small>Game Spec Inspection Form</small>這台能不能玩？</h1>
+      <p>選一款遊戲、填你的手機或電腦硬體，程式會對照官方的最低與建議配備，直接給你結論。</p>
+    </div>
+    <div class="meta">指數為相對效能估計值，非官方跑分<br><a id="repoLink" href="#" target="_blank" rel="noopener" class="hide">GitHub 原始碼</a></div>
+  </header>
+
+  <main class="sheet">
+    <div class="formhead">
+      <div class="title">遊戲配備檢驗單<small>GAME SPEC INSPECTION FORM</small></div>
+      <div class="box"><span>表單編號</span><b id="formNo">GSC</b><span>需求資料整理至</span><b id="dataDate">—</b><span>檢驗方式</span><b>自動判定・相對效能指數</b></div>
+    </div>
+    <div class="cols">
+      <section class="col col-form" aria-label="填寫遊戲與裝置">
+        <div class="step">
+          <div class="step-h"><span class="no">1</span><h2>你想玩哪款遊戲？</h2></div>
+          <div class="seg" role="group" aria-label="平台">
+            <button type="button" id="tabMobile" aria-pressed="true">手機／平板</button>
+            <button type="button" id="tabPC" aria-pressed="false">電腦（PC）</button>
+          </div>
+          <div class="field" style="margin-top:12px">
+            <label for="gameSel">遊戲</label>
+            <select id="gameSel"></select>
+            <div class="gameinfo" id="gameInfo"></div>
+          </div>
+        </div>
+
+        <div class="step" id="panelMobile">
+          <div class="step-h"><span class="no">2</span><h2>你的手機或平板</h2><span class="hint">從型號選，或直接選處理器</span></div>
+          <div class="seg small" role="group" aria-label="輸入方式">
+            <button type="button" id="mModeModel" aria-pressed="true">選型號</button>
+            <button type="button" id="mModeSoc" aria-pressed="false">直接選處理器</button>
+          </div>
+          <div id="mByModel" style="margin-top:12px">
+            <div class="row">
+              <div class="field"><label for="mBrand">品牌</label><select id="mBrand"></select></div>
+              <div class="field"><label for="mModel">型號</label><select id="mModel"></select></div>
+            </div>
+            <div class="row">
+              <div class="field"><label for="mRamModel">記憶體（RAM）</label><select id="mRamModel"></select></div>
+              <div class="field"><label>處理器</label><div id="mSocShow" style="padding:8px 0;color:var(--ink-2)">—</div></div>
+            </div>
+            <div class="subnote">找不到你的型號？請<button type="button" class="link" id="toSocMode">直接選處理器</button>，或選同一晶片的相近型號。</div>
+          </div>
+          <div id="mBySoc" class="hide" style="margin-top:12px">
+            <div class="row-3">
+              <div class="field">
+                <label for="mSoc">處理器（SoC）</label>
+                <input type="text" id="mSoc" list="socList" placeholder="輸入型號，例如 Snapdragon 8 Gen 3、Dimensity 9300、A17 Pro" autocomplete="off">
+                <datalist id="socList"></datalist>
+                <div class="match" id="mSocMatch"></div>
+              </div>
+              <div class="field"><label for="mRamSoc">記憶體（GB）</label><select id="mRamSoc"></select></div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="field"><label for="mOs">系統版本（選填）</label><input type="text" id="mOs" placeholder="例如 Android 14 或 iOS 17" autocomplete="off"></div>
+            <div class="field"><label for="mDisk">可用空間 GB（選填）</label><input type="number" id="mDisk" min="0" step="1" placeholder="例如 64"></div>
+          </div>
+        </div>
+
+        <div class="step hide" id="panelPC">
+          <div class="step-h"><span class="no">2</span><h2>你的電腦</h2><span class="hint">桌機、筆電都可以</span></div>
+          <div class="row-3">
+            <div class="field">
+              <label for="cpu">處理器（CPU）</label>
+              <input type="text" id="cpu" list="cpuList" placeholder="例如 i5-12400F、Ryzen 5 5600、i7-13620H" autocomplete="off">
+              <datalist id="cpuList"></datalist>
+              <div class="match" id="cpuMatch"></div>
+            </div>
+            <div class="field"><label for="cpuFilter">清單範圍</label><select id="cpuFilter"></select></div>
+          </div>
+          <div class="row-3">
+            <div class="field">
+              <label for="gpu">顯示卡（GPU）</label>
+              <input type="text" id="gpu" list="gpuList" placeholder="例如 RTX 4060、RX 7600、GTX 1650、Iris Xe" autocomplete="off">
+              <datalist id="gpuList"></datalist>
+              <div class="match" id="gpuMatch"></div>
+            </div>
+            <div class="field"><label for="gpuFilter">清單範圍</label><select id="gpuFilter"></select></div>
+          </div>
+          <div class="row">
+            <div class="field"><label for="ram">記憶體（RAM）</label>
+              <select id="ram">
+                <option value="4">4 GB</option><option value="6">6 GB</option><option value="8">8 GB</option>
+                <option value="12">12 GB</option><option value="16" selected>16 GB</option><option value="24">24 GB</option>
+                <option value="32">32 GB</option><option value="48">48 GB</option><option value="64">64 GB</option>
+              </select>
+            </div>
+            <div class="field"><label for="os">Windows 版本</label>
+              <select id="os">
+                <option value="win11">Windows 11</option><option value="win10" selected>Windows 10</option><option value="old">Windows 8.1 或更舊</option>
+              </select>
+            </div>
+          </div>
+          <div class="row">
+            <div class="field"><label for="drive">遊戲安裝在</label>
+              <select id="drive"><option value="ssd">SSD（固態硬碟）</option><option value="hdd">HDD（傳統硬碟）</option></select>
+            </div>
+            <div class="field"><label for="disk">可用空間 GB（選填）</label><input type="number" id="disk" min="0" step="1" placeholder="例如 200"></div>
+          </div>
+          <div class="subnote">筆電的 CPU／GPU 請選「筆電」版本（型號有 H、U 或「Laptop」字樣），效能與桌機版不同。</div>
+        </div>
+      </section>
+
+      <section class="col col-result" aria-label="檢測結果" aria-live="polite">
+        <div class="cutline" aria-hidden="true"><span>✂ 檢驗結果單・沿此線撕下</span></div>
+        <div class="step-h"><span class="no">3</span><h2>判定結果</h2></div>
+        <div id="result"><div class="result-empty">選好遊戲、填好硬體後，這裡會出現判定：整體結論、每個零件相對於官方最低與建議配備的位置，以及畫質／幀率的預估。</div></div>
+      </section>
+    </div>
+  </main>
+
+  <details class="extra" id="customBox">
+    <summary><span class="tri"></span>清單裡沒有的遊戲？自行新增，或用 AI 幫你查<span class="desc">（新增後會出現在遊戲清單，可匯出 JSON 保存）</span></summary>
+    <div class="inner">
+      <h3>用 AI 查官方需求（在 Claude 內預覽時可用）</h3>
+      <div class="row-3">
+        <div class="field"><label for="aiName">遊戲名稱</label><input type="text" id="aiName" placeholder="例如 Arknights: Endfield、天堂W、Once Human" autocomplete="off"></div>
+        <div class="field"><label>&nbsp;</label><button type="button" class="btn primary" id="aiBtn" style="width:100%">查詢並填入下方表單</button></div>
+      </div>
+      <div class="status" id="aiStatus">查到的內容會填進下方表單，請確認硬體對應是否正確再加入。部署到自己的網站後，這個按鈕需要自行接上 API 金鑰才會動作。</div>
+
+      <h3>手動填寫</h3>
+      <div class="row">
+        <div class="field"><label for="cName">遊戲名稱</label><input type="text" id="cName" placeholder="中文或英文皆可"></div>
+        <div class="field"><label for="cEn">英文名（選填）</label><input type="text" id="cEn"></div>
+      </div>
+      <div class="row" style="grid-template-columns:auto auto auto;justify-content:start;gap:18px">
+        <label><input type="checkbox" id="cHasPC" checked> 有 PC 版</label>
+        <label><input type="checkbox" id="cHasAnd" checked> 有 Android 版</label>
+        <label><input type="checkbox" id="cHasIos" checked> 有 iOS 版</label>
+      </div>
+      <fieldset id="cPCBox"><legend>PC 需求</legend>
+        <div class="row">
+          <div class="field"><label for="cMinCpu">最低 CPU</label><input type="text" id="cMinCpu" list="cpuListAll" autocomplete="off"><div class="match" id="cMinCpuM"></div></div>
+          <div class="field"><label for="cRecCpu">建議 CPU</label><input type="text" id="cRecCpu" list="cpuListAll" autocomplete="off"><div class="match" id="cRecCpuM"></div></div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="cMinGpu">最低 GPU</label><input type="text" id="cMinGpu" list="gpuListAll" autocomplete="off"><div class="match" id="cMinGpuM"></div></div>
+          <div class="field"><label for="cRecGpu">建議 GPU</label><input type="text" id="cRecGpu" list="gpuListAll" autocomplete="off"><div class="match" id="cRecGpuM"></div></div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="cMinRam">最低 RAM（GB）</label><input type="number" id="cMinRam" min="1" value="8"></div>
+          <div class="field"><label for="cRecRam">建議 RAM（GB）</label><input type="number" id="cRecRam" min="1" value="16"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="cDisk">需要空間（GB）</label><input type="number" id="cDisk" min="0" placeholder="選填"></div>
+          <div class="field"><label for="cSsd">SSD</label><select id="cSsd"><option value="">不要求</option><option value="rec">建議</option><option value="req">必要</option></select></div>
+        </div>
+      </fieldset>
+      <fieldset id="cAndBox"><legend>Android 需求</legend>
+        <div class="row">
+          <div class="field"><label for="cMinSoc">最低處理器</label><input type="text" id="cMinSoc" list="socListAnd" autocomplete="off"><div class="match" id="cMinSocM"></div></div>
+          <div class="field"><label for="cRecSoc">建議處理器</label><input type="text" id="cRecSoc" list="socListAnd" autocomplete="off"><div class="match" id="cRecSocM"></div></div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="cAMinRam">最低 RAM（GB）</label><input type="number" id="cAMinRam" min="1" value="4"></div>
+          <div class="field"><label for="cARecRam">建議 RAM（GB）</label><input type="number" id="cARecRam" min="1" value="8"></div>
+        </div>
+      </fieldset>
+      <fieldset id="cIosBox"><legend>iOS 需求</legend>
+        <div class="row">
+          <div class="field"><label for="cMinChip">最低晶片</label><input type="text" id="cMinChip" list="socListIos" autocomplete="off"><div class="match" id="cMinChipM"></div></div>
+          <div class="field"><label for="cRecChip">建議晶片</label><input type="text" id="cRecChip" list="socListIos" autocomplete="off"><div class="match" id="cRecChipM"></div></div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="cIMinRam">最低 RAM（GB）</label><input type="number" id="cIMinRam" min="1" value="3"></div>
+          <div class="field"><label for="cIRecRam">建議 RAM（GB）</label><input type="number" id="cIRecRam" min="1" value="4"></div>
+        </div>
+      </fieldset>
+      <div class="field"><label for="cSrc">資料來源（選填，網址或說明）</label><input type="text" id="cSrc"></div>
+      <div class="actions">
+        <button type="button" class="btn primary" id="cAdd">加入遊戲清單並檢測</button>
+        <button type="button" class="btn" id="cExport">匯出自訂遊戲 JSON</button>
+        <button type="button" class="btn" id="cImportBtn">匯入 JSON</button>
+      </div>
+      <div class="status" id="cStatus"></div>
+      <div class="field hide" id="cImportWrap" style="margin-top:10px"><label for="cImport">貼上先前匯出的 JSON</label><textarea id="cImport" rows="4"></textarea><div class="actions"><button type="button" class="btn small" id="cImportGo">讀取</button></div></div>
+      <datalist id="cpuListAll"></datalist><datalist id="gpuListAll"></datalist><datalist id="socListAnd"></datalist><datalist id="socListIos"></datalist>
+    </div>
+  </details>
+
+  <section class="about">
+    <h2>判定怎麼來的</h2>
+    <p>每顆 CPU、顯示卡、手機晶片都有一個「相對效能指數」（依公開跑分整理的估計值，PC 顯示卡以 GTX 1060 6GB = 100 為基準；CPU 約為 PassMark 多核分數 ÷ 100；手機晶片約為安兔兔 v10 分數 ÷ 10000）。遊戲的官方最低與建議配備會換算成同一套指數，再看你的硬體落在哪裡：</p>
+    <div class="legend">
+      <span style="--c:var(--l0)"><b>不可</b>低於最低配備</span>
+      <span style="--c:var(--l1)"><b>勉強</b>只達到最低配備，不建議</span>
+      <span style="--c:var(--l2)"><b>可玩</b>介於最低與建議之間</span>
+      <span style="--c:var(--l3)"><b>順暢</b>達到官方建議配備</span>
+      <span style="--c:var(--l4)"><b>極佳</b>遠超建議（或達官方高規配備）</span>
+    </div>
+    <ul>
+      <li>整體結論取最弱的那個零件（瓶頸）。記憶體不足會直接判「不可」；硬碟空間不足只提醒、不影響結論。</li>
+      <li>官方沒寫建議配備的遊戲，會以「最低 × 1.6」估算並標示「估」。</li>
+      <li>手機遊戲：Android 看晶片，iOS 看 Apple 晶片世代；散熱、系統版本與遊戲後續改版都會影響實際體驗。</li>
+      <li>手遊在 PC 上遊玩時，遊戲資訊會標明是「官方電腦版」、「Google Play Games」還是「模擬器」；模擬器與 Google Play Games 官方只公布最低需求，建議欄為估算，且都需要在 BIOS 開啟虛擬化（VT）。</li>
+      <li>本工具為輔助判斷，實際仍以各遊戲官方公告與你的實測為準。</li>
+    </ul>
+  </section>
+
+  <footer class="site-foot">
+    <span>需求資料整理至 <span class="dataDate2">—</span>・硬體指數為估計值，僅供參考，實際請以各遊戲官方公告與實測為準</span>
+    <span><a id="repoLink2" href="#" target="_blank" rel="noopener" class="hide">GitHub</a> MIT License</span>
+  </footer>
+</div>
+<button type="button" class="mini hide" id="mini" aria-label="捲動到判定結果"><span>判定結果</span><b id="miniLv">—</b><span class="go">查看 ↓</span></button>
+
+<!-- 印章的墨水紋理濾鏡 -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <filter id="ink"><feTurbulence type="fractalNoise" baseFrequency="1.1" numOctaves="2" seed="7" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="1.8" xChannelSelector="R" yChannelSelector="G"/></filter>
+</svg>
+<noscript><p style="text-align:center;padding:20px">這個工具需要啟用 JavaScript 才能運作。</p></noscript>
+
+<!-- 載入順序固定：設定 → 硬體 → 手機型號 → 遊戲 → 引擎 → 介面 -->
+<script src="js/config.js"></script>
+<script src="js/data-hardware.js"></script>
+<script src="js/data-phones.js"></script>
+<script src="js/data-games.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/ui.js"></script>
+</body>
+</html>
