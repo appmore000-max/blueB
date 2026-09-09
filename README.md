@@ -13,6 +13,7 @@
 - **145 款遊戲**：PC／Steam 大作、線上遊戲、手遊；手遊若有官方電腦版、Google Play Games（PC）或可用模擬器，PC 端也能檢測，並標明遊玩方式。
 - **判定結果**：印章式結論、每個零件相對於官方最低／建議／高規配備的位置、畫質與幀率預估、官方需求對照表與來源、一鍵複製文字、列印／存成 PDF。
 - **自訂遊戲**：清單裡沒有的遊戲可手動填寫需求（或用 AI 查官方需求自動填表），可匯出／匯入 JSON。
+- **一鍵檢測自己的電腦**：搭配本機小助手（`helper/gsc-helper.bat`，訪客下載後點兩下執行、不用安裝）一次抓齊 CPU、顯示卡、記憶體、每顆硬碟的 SSD／HDD 與容量、剩餘空間、Windows 版本、螢幕解析度與更新率，自動填表判定。沒執行小助手也有「瀏覽器偵測」與「PowerShell 指令貼上」兩種備案；手機端則以瀏覽器能提供的型號與系統版本為限，不需安裝任何東西。
 
 ## 判定怎麼來的
 
@@ -51,12 +52,14 @@ js/data-hardware.js   硬體資料庫：GPUS / CPUS / SOCS（名稱＋相對效�
 js/data-phones.js     手機／平板型號 → 晶片、記憶體
 js/data-games.js      遊戲需求資料庫（PC / Android / iOS）
 js/engine.js          判定引擎（純函式，可用 node 測試）
+js/detect.js          裝置偵測：本機小助手連線、WebGL 顯示卡、Android 型號代碼對照、iPhone 螢幕尺寸候選、PowerShell 指令與解析
+helper/gsc-helper.bat 本機小助手（Windows；批次檔＋PowerShell 合體，純文字可檢視）
 js/ui.js              介面：清單、模糊比對、結果渲染、自訂遊戲、匯出匯入、複製、列印
 tools/bundle.js       把整個專案打包成單一 HTML（dist/game-spec-checker.html）
 docs/screenshot.png   README 用截圖
 ```
 
-腳本載入順序固定：`config → data-hardware → data-phones → data-games → engine → ui`。
+腳本載入順序固定：`config → data-hardware → data-phones → data-games → engine → detect → ui`。
 
 ## 部署到 GitHub Pages
 
@@ -109,6 +112,37 @@ node tools/bundle.js
 ```
 
 `generic:true` 的「泛指」項目只給遊戲需求對照用，不會出現在使用者的清單裡。手機型號在 `js/data-phones.js`，`soc` 要對得上 `SOCS` 的名稱。
+
+## 偵測自己的裝置
+
+瀏覽器基於隱私，能給網頁的資訊很少，所以 PC 端分成三層：
+
+### 一鍵檢測（本機小助手）
+
+網站是靜態的，碰不到訪客的電腦；唯一能讀到 CPU、硬碟這些資訊的是在訪客電腦上、瀏覽器之外執行的程式。`helper/gsc-helper.bat` 就是這個程式：
+
+1. 訪客在網頁按「一鍵檢測」，沒偵測到小助手時會顯示步驟與下載連結（下載時網頁會把自己的網址寫進 .bat，執行完會自動開回網頁）。
+2. 點兩下 .bat：它讀取硬體（`Get-CimInstance`、`Get-PhysicalDisk`、`Get-PSDrive`），印出並複製一行結果，然後在 `127.0.0.1:27321`（占用時改 27322、27323）開一個只有本機能連的小服務，閒置 30 分鐘自動結束。
+3. 網頁再按一次「一鍵檢測」（或由 `?helper=埠號` 自動觸發），用 `fetch` 讀 `http://localhost:27321/specs`，填表並判定。
+
+安全性：小助手是純文字腳本，不安裝、不改設定、不對外連線，只回應本機瀏覽器；服務回應含 CORS 與 `Access-Control-Allow-Private-Network` 標頭，Chrome 第一次可能詢問「允許存取本機網路」。沒有程式碼簽章，Windows 第一次執行會出現「已保護您的電腦 → 其他資訊 → 仍要執行」。只支援 Windows（Windows PowerShell 5.1 以上）。
+
+若你用 `tools/bundle.js` 產生單檔版本部署，記得把 `helper/` 資料夾一起放上去，下載連結才會有效。
+
+### 瀏覽器偵測與 PowerShell 指令
+
+| 項目 | 一鍵檢測（小助手） | 網頁「只用瀏覽器偵測」 | PowerShell 指令貼上 |
+|---|---|---|---|
+| 顯示卡型號 | ✔（含解析度、更新率） | ✔（Chrome／Edge；Safari 只回報「Apple GPU」） | ✔ |
+| CPU 型號 | ✔ | ✘（只有核心數） | ✔ |
+| 記憶體 | ✔ | 粗略值，最多回報 8GB | ✔ |
+| SSD／HDD、容量、剩餘空間 | ✔（每顆硬碟） | ✘ | ✔（每顆硬碟） |
+| Windows 版本 | ✔ | ✔（Chrome／Edge） | ✔ |
+| Android 型號 | — | ✔ Pixel 直接對應；Samsung 以型號代碼（SM-S938…）對照；其他廠牌以 GPU 推測晶片 | — |
+| iPhone 型號 | — | 只能用螢幕尺寸列出候選機型，需自行確認 | — |
+| 手機記憶體、儲存空間 | — | ✘（請看「設定 → 關於手機／儲存空間」） | — |
+
+PowerShell 用法：按「複製 PowerShell 指令」→ 開始鍵搜尋 PowerShell 並開啟 → 貼上、Enter → 輸出的一行（`GSC|CPU=…|GPU=…`）會自動複製到剪貼簿 → 回網頁按「貼上指令結果」貼上即可。指令只讀取硬體資訊（`Get-CimInstance`、`Get-PhysicalDisk`、`Get-PSDrive`），不會改動任何設定。貼上其他含有硬體型號的文字（例如工作管理員或 dxdiag 的內容）也能辨識。
 
 ## AI 查詢官方需求（選用）
 

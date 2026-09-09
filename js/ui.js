@@ -421,6 +421,7 @@ function init(){
   $('aiBtn').addEventListener('click',aiLookup); $('aiName').addEventListener('keydown',e=>{if(e.key==='Enter')aiLookup();});
   $('mini').addEventListener('click',()=>document.querySelector('.col-result').scrollIntoView({behavior:'smooth',block:'start'}));
   if('IntersectionObserver' in window) new IntersectionObserver(es=>es.forEach(e=>$('mini').classList.toggle('off',e.isIntersecting)),{threshold:0.12}).observe(document.querySelector('.col-result'));
+  if(typeof initDetect==='function') initDetect();
   run();
 }
 document.addEventListener('DOMContentLoaded',init);

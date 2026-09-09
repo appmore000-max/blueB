@@ -44,6 +44,8 @@
 
         <div class="step" id="panelMobile">
           <div class="step-h"><span class="no">2</span><h2>你的手機或平板</h2><span class="hint">從型號選，或直接選處理器</span></div>
+          <div class="detect"><button type="button" class="btn small" id="detectBtn">偵測這支手機</button><span class="hint">Chrome 較準；iPhone 只能列出候選機型，記憶體與儲存空間請自行確認</span></div>
+          <div class="status" id="detectStatus"></div>
           <div class="seg small" role="group" aria-label="輸入方式">
             <button type="button" id="mModeModel" aria-pressed="true">選型號</button>
             <button type="button" id="mModeSoc" aria-pressed="false">直接選處理器</button>
@@ -78,6 +80,22 @@
 
         <div class="step hide" id="panelPC">
           <div class="step-h"><span class="no">2</span><h2>你的電腦</h2><span class="hint">桌機、筆電都可以</span></div>
+          <div class="detect">
+            <button type="button" class="btn small primary" id="helperBtn">一鍵檢測（本機小助手）</button>
+            <button type="button" class="btn small" id="detectBtnPC">只用瀏覽器偵測</button>
+            <button type="button" class="btn small" id="psCopyBtn">複製 PowerShell 指令</button>
+            <button type="button" class="btn small" id="psPasteBtn">貼上指令結果</button>
+          </div>
+          <div class="status" id="detectStatusPC">「一鍵檢測」會讀取 CPU、顯示卡、記憶體、SSD／HDD 容量與剩餘空間、Windows 版本，需要先在這台電腦執行一次小助手（下載後點兩下，不用安裝）。瀏覽器本身只偵測得到顯示卡。</div>
+          <div class="guide hide" id="helperGuide">
+            <b>第一次使用小助手</b>
+            <ol>
+              <li><a id="helperDl" href="helper/gsc-helper.bat" download="gsc-helper.bat">下載 gsc-helper.bat</a>（幾 KB 的純文字腳本，可用記事本打開查看，只讀取硬體資訊、不安裝也不上傳）</li>
+              <li>點兩下執行。Windows 若跳出「已保護您的電腦」，按「其他資訊 → 仍要執行」；出現黑色視窗列出硬體就是成功，它會自動開回這個網頁。</li>
+              <li>回到這裡再按一次「一鍵檢測」。Chrome 若詢問「允許存取本機網路裝置」請按允許。檢測完就能關掉黑色視窗。</li>
+            </ol>
+          </div>
+          <div class="field hide" id="psWrap"><label for="psPaste">貼上指令輸出（以 GSC| 開頭的那一行；貼上其他含硬體型號的文字也能辨識）</label><textarea id="psPaste" rows="3"></textarea><div class="actions"><button type="button" class="btn small" id="psGo">讀取</button></div></div>
           <div class="row-3">
             <div class="field">
               <label for="cpu">處理器（CPU）</label>
@@ -230,12 +248,13 @@
 </svg>
 <noscript><p style="text-align:center;padding:20px">這個工具需要啟用 JavaScript 才能運作。</p></noscript>
 
-<!-- 載入順序固定：設定 → 硬體 → 手機型號 → 遊戲 → 引擎 → 介面 -->
+<!-- 載入順序固定：設定 → 硬體 → 手機型號 → 遊戲 → 引擎 → 裝置偵測 → 介面 -->
 <script src="js/config.js"></script>
 <script src="js/data-hardware.js"></script>
 <script src="js/data-phones.js"></script>
 <script src="js/data-games.js"></script>
 <script src="js/engine.js"></script>
+<script src="js/detect.js"></script>
 <script src="js/ui.js"></script>
 </body>
 </html>
