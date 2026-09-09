@@ -70,7 +70,7 @@ docs/screenshot.png   README 用截圖
 
 不需要 Actions、不需要 build。本機測試直接用瀏覽器開 `index.html` 即可（`file://` 也能跑）。
 
-更新檔案後網頁沒變化，多半是舊檔案被快取：先按 Ctrl+F5 強制重新整理；仍不行就把 `index.html` 裡 `?v=2.1` 的版本號改一下再上傳，瀏覽器就會重新抓 css／js。按 F12 在 Console 輸入 `APP_VERSION` 可以確認目前載入的是哪一版。
+更新檔案後網頁沒變化，多半是舊檔案被快取：先按 Ctrl+F5 強制重新整理；仍不行就把 `index.html` 裡 `?v=2.3` 的版本號改一下再上傳，瀏覽器就會重新抓 css／js。按 F12 在 Console 輸入 `APP_VERSION` 可以確認目前載入的是哪一版。
 
 想要單一 HTML 檔（例如丟到 Netlify Drop 或直接傳給朋友）：
 
@@ -126,6 +126,7 @@ node tools/bundle.js
 1. 訪客在網頁按「一鍵檢測」，沒偵測到小助手時會顯示步驟與下載連結（下載時網頁會把自己的網址寫進 .bat，執行完會自動開回網頁）。
 2. 點兩下 .bat：它讀取硬體（`Get-CimInstance`、`Get-PhysicalDisk`、`Get-PSDrive`），印出並複製一行結果，然後在 `127.0.0.1:27321`（占用時改 27322、27323）開一個只有本機能連的小服務，閒置 30 分鐘自動結束。
 3. 網頁再按一次「一鍵檢測」（或由 `?helper=埠號` 自動觸發），用 `fetch` 讀 `http://localhost:27321/specs`，填表並判定。
+4. 小助手不是常駐程式：黑色視窗關掉（或閒置 30 分鐘）服務就結束，下次要重新偵測時再點兩下同一個 .bat 即可，不用重新下載。填過的硬體會存在訪客自己瀏覽器的 localStorage，下次開頁自動帶入，所以通常只有硬體變動時才需要再跑小助手。
 
 安全性：小助手是純文字腳本，不安裝、不改設定、不對外連線，只回應本機瀏覽器；服務回應含 CORS 與 `Access-Control-Allow-Private-Network` 標頭，Chrome 第一次可能詢問「允許存取本機網路」。沒有程式碼簽章，Windows 第一次執行會出現「已保護您的電腦 → 其他資訊 → 仍要執行」。只支援 Windows（Windows PowerShell 5.1 以上）。
 

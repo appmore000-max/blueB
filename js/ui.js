@@ -140,7 +140,7 @@ function setMini(lv){
   m.classList.remove('hide'); $('miniLv').textContent=LEVELS[lv].t; $('miniLv').style.color='var(--l'+lv+')';
 }
 function run(){
-  setMini(null);
+  setMini(null); saveLastDebounced();
   const g=currentGame(), out=$('result');
   if(!g){out.innerHTML='<div class="result-empty">請先在左邊「1」選擇遊戲，再填你的裝置，這裡就會出現判定：整體結論、每個零件相對於官方最低與建議配備的位置，以及畫質／幀率的預估。</div>';return;}
   let user,res;
@@ -156,6 +156,8 @@ function run(){
   if(res.unsupported){out.innerHTML='<div class="result-empty">'+esc(res.unsupported)+'。</div>';return;}
   render(g,user,res);
 }
+/* 每次判定或欄位變動後記住目前填的硬體 */
+const saveLastDebounced=debounce(saveLast,400);
 function barHtml(row){
   const have=row.have?row.have.s:null;
   const min=row.min?row.min.score:null, rec=row.rec?row.rec.score:null, high=row.high?row.high.score:null;
@@ -384,6 +386,20 @@ function fillCustomForm(j){
   $('customBox').open=true; syncClearables();
 }
 
+/* ---------- 清除全部：遊戲回到「請選擇遊戲」、兩個裝置面板全部回到初始值、清掉記住的硬體 ---------- */
+function resetAll(){
+  try{localStorage.removeItem(LS_KEY);}catch(e){}
+  $('gameSel').value='';$('gameSel').classList.add('placeholder');updateGameInfo();
+  ['cpu','gpu','disk'].forEach(id=>$(id).value='');$('ram').value='16';$('os').value='win10';$('drive').value='ssd';
+  $('cpuFilter').value='';$('gpuFilter').value='';refillDatalist('cpu');refillDatalist('gpu');['cpuMatch','gpuMatch','mSocMatch'].forEach(id=>{$(id).textContent='';$(id).className='match';});
+  const ps=$('psPaste');if(ps)ps.value='';['psWrap','helperGuide'].forEach(id=>{const e=$(id);if(e)e.classList.add('hide');});
+  state.mMode='model';$('mModeModel').setAttribute('aria-pressed','true');$('mModeSoc').setAttribute('aria-pressed','false');$('mByModel').classList.remove('hide');$('mBySoc').classList.add('hide');
+  $('mBrand').selectedIndex=0;fillModels();$('mSoc').value='';$('mRamSoc').value='8';$('mOs').value='';$('mDisk').value='';
+  ['detectStatusPC','detectStatus'].forEach(id=>{const e=$(id);if(e){e.innerHTML=e.dataset.def||'';e.className='status';}});
+  syncClearables();run();
+  const st=state.plat==='pc'?$('detectStatusPC'):$('detectStatus');if(st){st.textContent='已清除所有欄位與記住的硬體。';st.className='status ok';}
+}
+
 /* ---------- 平台切換與事件 ---------- */
 function setPlat(p,keepGameId){
   state.plat=p;
@@ -392,6 +408,32 @@ function setPlat(p,keepGameId){
   fillGames(keepGameId); run();
 }
 function debounce(fn,ms){let t;return()=>{clearTimeout(t);t=setTimeout(fn,ms);};}
+/* ---------- 記住上次填的硬體（存在訪客自己的瀏覽器 localStorage，不會上傳） ---------- */
+const LS_KEY='gsc:last';
+function saveLast(){
+  try{
+    const o={t:Date.now(),
+      pc:{cpu:$('cpu').value,gpu:$('gpu').value,ram:$('ram').value,os:$('os').value,drive:$('drive').value,disk:$('disk').value},
+      mobile:{mode:state.mMode,brand:$('mBrand').value,model:$('mModel').value,ramModel:$('mRamModel').value,soc:$('mSoc').value,ramSoc:$('mRamSoc').value,os:$('mOs').value,disk:$('mDisk').value}};
+    localStorage.setItem(LS_KEY,JSON.stringify(o));
+  }catch(e){}
+}
+function restoreLast(){
+  let o=null;try{o=JSON.parse(localStorage.getItem(LS_KEY)||'null');}catch(e){}
+  if(!o||!o.t) return null;
+  const p=o.pc||{},m=o.mobile||{};
+  ['cpu','gpu','ram','os','drive','disk'].forEach(k=>{if(p[k]!=null&&p[k]!=='')$(k).value=p[k];});
+  if(m.brand&&PHONES.some(x=>x.b===m.brand)){$('mBrand').value=m.brand;fillModels();if(m.model&&PHONES.some(x=>x.n===m.model)){$('mModel').value=m.model;fillModelRam();if(m.ramModel)$('mRamModel').value=m.ramModel;}}
+  if(m.soc)$('mSoc').value=m.soc; if(m.ramSoc)$('mRamSoc').value=m.ramSoc; if(m.os)$('mOs').value=m.os; if(m.disk)$('mDisk').value=m.disk;
+  if(m.mode==='soc'){state.mMode='soc';$('mModeModel').setAttribute('aria-pressed','false');$('mModeSoc').setAttribute('aria-pressed','true');$('mByModel').classList.add('hide');$('mBySoc').classList.remove('hide');}
+  syncClearables();
+  const when=new Date(o.t),txt='已自動填入上次的硬體（'+(when.getMonth()+1)+'/'+when.getDate()+' '+String(when.getHours()).padStart(2,'0')+':'+String(when.getMinutes()).padStart(2,'0')+'）。硬體有更動請重新偵測，或 <button type="button" class="link" data-clear>清除紀錄</button>。';
+  const hasPC=!!(p.cpu||p.gpu),hasM=!!(m.model||m.soc);
+  if(hasPC&&$('detectStatusPC')){$('detectStatusPC').innerHTML=txt;$('detectStatusPC').className='status';}
+  if(hasM&&$('detectStatus')){$('detectStatus').innerHTML=txt;$('detectStatus').className='status';}
+  document.querySelectorAll('[data-clear]').forEach(b=>b.addEventListener('click',()=>{try{localStorage.removeItem(LS_KEY);}catch(e){}location.reload();}));
+  return o.t;
+}
 /* 有清單的輸入框加上「×」清除鈕；點下去清空並重新判定，游標留在欄位裡方便重選 */
 function setupClearables(){
   document.querySelectorAll('input[list]').forEach(inp=>{
@@ -409,7 +451,9 @@ function init(){
   $('dataDate').textContent=DATA_DATE; $('formNo').textContent='GSC-'+DATA_DATE.replace(/-/g,'');
   document.querySelectorAll('.dataDate2').forEach(e=>e.textContent=DATA_DATE);
   if(REPO_URL){['repoLink','repoLink2'].forEach(id=>{const a=$(id);if(a){a.href=REPO_URL;a.classList.remove('hide');}});}
-  fillBrands(); fillSocList(); fillPcLists(); fillCustomLists(); fillGames(); setupClearables();
+  ['detectStatusPC','detectStatus'].forEach(id=>{const e=$(id);if(e)e.dataset.def=e.innerHTML;});   // 記住預設提示文字，清除全部時還原
+  fillBrands(); fillSocList(); fillPcLists(); fillCustomLists(); fillGames(); setupClearables(); restoreLast();
+  document.querySelectorAll('.resetAll').forEach(b=>b.addEventListener('click',resetAll));
   $('tabMobile').addEventListener('click',()=>setPlat('mobile')); $('tabPC').addEventListener('click',()=>setPlat('pc'));
   $('gameSel').addEventListener('change',()=>{$('gameSel').classList.toggle('placeholder',!$('gameSel').value);updateGameInfo();run();});
   $('mModeModel').addEventListener('click',()=>setMobileMode('model')); $('mModeSoc').addEventListener('click',()=>setMobileMode('soc')); $('toSocMode').addEventListener('click',()=>setMobileMode('soc'));

@@ -205,7 +205,7 @@ async function connectHelper(preferPort){
   $('helperGuide').classList.add('hide');
   const ports=preferPort?[preferPort].concat(HELPER_PORTS.filter(p=>p!==preferPort)):HELPER_PORTS;
   for(const host of ['localhost','127.0.0.1']){for(const p of ports){const j=await helperFetch(host,p);if(j){applyHelper(j);return true;}}}
-  st.className='status err';st.textContent='沒有偵測到本機小助手。請先執行小助手（見下方步驟），再按一次「一鍵檢測」；不想執行的話，也可以用「複製 PowerShell 指令」的方式。';
+  st.className='status err';st.textContent='沒有偵測到正在執行的小助手。小助手不是安裝程式，每次要檢測時點兩下執行、用完關掉即可：已下載過的話直接點兩下之前存的 gsc-helper.bat（通常在「下載」資料夾），它會自動開啟本頁並填入；還沒下載請看下方步驟。不想執行也可以用「複製 PowerShell 指令」的方式。';
   $('helperGuide').classList.remove('hide');
   return false;
 }

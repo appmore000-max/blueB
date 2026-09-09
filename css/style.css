@@ -66,6 +66,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 .step-h .no{font-family:var(--serif);font-weight:900;font-size:16px;line-height:1;border:1.5px solid var(--ink);padding:4px 7px 3px;border-radius:2px;letter-spacing:.05em}
 .step-h h2{font-family:var(--serif);font-weight:900;font-size:17px;margin:0;letter-spacing:.02em}
 .step-h .hint{margin-left:auto;color:var(--ink-3);font-size:12.5px}
+.step-h .resetAll{padding:3px 10px;font-size:12.5px;font-weight:500;margin-left:6px}
 
 /* 平台切換 */
 .seg{display:inline-flex;border:1.5px solid var(--ink);border-radius:var(--radius);overflow:hidden;background:var(--white)}

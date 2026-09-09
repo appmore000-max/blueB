@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@700;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=2.1">
+<link rel="stylesheet" href="css/style.css?v=2.3">
 </head>
 <body>
 <div class="wrap">
@@ -43,7 +43,7 @@
         </div>
 
         <div class="step" id="panelMobile">
-          <div class="step-h"><span class="no">2</span><h2>你的手機或平板</h2><span class="hint">從型號選，或直接選處理器</span></div>
+          <div class="step-h"><span class="no">2</span><h2>你的手機或平板</h2><span class="hint">從型號選，或直接選處理器</span><button type="button" class="btn small resetAll" title="清除遊戲與所有裝置欄位，回到初始狀態">清除全部</button></div>
           <div class="mobile-only">
             <div class="detect"><button type="button" class="btn small primary" id="detectBtn">偵測這支手機</button><span class="hint">Chrome 較準；iPhone 只能列出候選機型，記憶體與儲存空間請自行確認</span></div>
             <div class="status" id="detectStatus"></div>
@@ -82,7 +82,7 @@
         </div>
 
         <div class="step hide" id="panelPC">
-          <div class="step-h"><span class="no">2</span><h2>你的電腦</h2><span class="hint">桌機、筆電都可以</span></div>
+          <div class="step-h"><span class="no">2</span><h2>你的電腦</h2><span class="hint">桌機、筆電都可以</span><button type="button" class="btn small resetAll" title="清除遊戲與所有裝置欄位，回到初始狀態">清除全部</button></div>
           <div class="status mobile-only" id="pcNote">你現在是用手機開啟本頁，電腦的一鍵檢測要在那台電腦上打開本頁才能用；手機的偵測在「手機／平板」分頁。這裡仍可手動輸入電腦硬體。</div>
           <div class="desktop-only">
           <div class="detect">
@@ -93,11 +93,11 @@
           </div>
           <div class="status" id="detectStatusPC">「一鍵檢測」會讀取 CPU、顯示卡、記憶體、SSD／HDD 容量與剩餘空間、Windows 版本，需要先在這台電腦執行一次小助手（下載後點兩下，不用安裝）。瀏覽器本身只偵測得到顯示卡。</div>
           <div class="guide hide" id="helperGuide">
-            <b>第一次使用小助手</b>
+            <b>執行小助手</b>
             <ol>
-              <li><a id="helperDl" href="helper/gsc-helper.bat" download="gsc-helper.bat">下載 gsc-helper.bat</a>（幾 KB 的純文字腳本，可用記事本打開查看，只讀取硬體資訊、不安裝也不上傳）</li>
-              <li>點兩下執行。Windows 若跳出「已保護您的電腦」，按「其他資訊 → 仍要執行」；出現黑色視窗列出硬體就是成功，它會自動開回這個網頁。</li>
-              <li>回到這裡再按一次「一鍵檢測」。Chrome 若詢問「允許存取本機網路裝置」請按允許。檢測完就能關掉黑色視窗。</li>
+              <li>已經下載過：直接點兩下之前存的 <code>gsc-helper.bat</code>（通常在「下載」資料夾），黑色視窗出現後它會自動開啟本頁並填入。</li>
+              <li>還沒有：<a id="helperDl" href="helper/gsc-helper.bat" download="gsc-helper.bat">下載 gsc-helper.bat</a>（幾 KB 的純文字腳本，可用記事本打開查看，只讀取硬體資訊、不安裝也不上傳），然後點兩下執行。Windows 若跳出「已保護您的電腦」，按「其他資訊 → 仍要執行」。</li>
+              <li>回到這裡再按一次「一鍵檢測」。Chrome 若詢問「允許存取本機網路裝置」請按允許。檢測完就能關掉黑色視窗；下次再用時，再點兩下 .bat 即可，不用重新下載。</li>
             </ol>
           </div>
           <div class="field hide" id="psWrap"><label for="psPaste">貼上指令輸出（以 GSC| 開頭的那一行；貼上其他含硬體型號的文字也能辨識）</label><textarea id="psPaste" rows="3"></textarea><div class="actions"><button type="button" class="btn small" id="psGo">讀取</button></div></div>
@@ -237,6 +237,7 @@
       <li>官方沒寫建議配備的遊戲，會以「最低 × 1.6」估算並標示「估」。</li>
       <li>手機遊戲：Android 看晶片，iOS 看 Apple 晶片世代；散熱、系統版本與遊戲後續改版都會影響實際體驗。</li>
       <li>手遊在 PC 上遊玩時，遊戲資訊會標明是「官方電腦版」、「Google Play Games」還是「模擬器」；模擬器與 Google Play Games 官方只公布最低需求，建議欄為估算，且都需要在 BIOS 開啟虛擬化（VT）。</li>
+      <li>你填過的硬體會記在你自己的瀏覽器裡（localStorage），下次開啟自動帶入，不會上傳到任何地方；偵測列旁的「清除紀錄」可以刪掉。</li>
       <li>本工具為輔助判斷，實際仍以各遊戲官方公告與你的實測為準。</li>
     </ul>
   </section>
@@ -255,12 +256,12 @@
 <noscript><p style="text-align:center;padding:20px">這個工具需要啟用 JavaScript 才能運作。</p></noscript>
 
 <!-- 載入順序固定：設定 → 硬體 → 手機型號 → 遊戲 → 引擎 → 裝置偵測 → 介面 -->
-<script src="js/config.js?v=2.1"></script>
-<script src="js/data-hardware.js?v=2.1"></script>
-<script src="js/data-phones.js?v=2.1"></script>
-<script src="js/data-games.js?v=2.1"></script>
-<script src="js/engine.js?v=2.1"></script>
-<script src="js/detect.js?v=2.1"></script>
-<script src="js/ui.js?v=2.1"></script>
+<script src="js/config.js?v=2.3"></script>
+<script src="js/data-hardware.js?v=2.3"></script>
+<script src="js/data-phones.js?v=2.3"></script>
+<script src="js/data-games.js?v=2.3"></script>
+<script src="js/engine.js?v=2.3"></script>
+<script src="js/detect.js?v=2.3"></script>
+<script src="js/ui.js?v=2.3"></script>
 </body>
 </html>

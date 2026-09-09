@@ -1,9 +1,9 @@
 /* ============================================================
  * 設定  js/config.js  — 部署時只需要改這個檔
  * ============================================================ */
-const APP_VERSION = '2.1';
+const APP_VERSION = '2.3';
 const DATA_DATE   = '2026-09';   // 需求資料整理日期（顯示在表單標頭）
-const REPO_URL    = '';          // 你的 GitHub 專案網址，例如 'https://github.com/你的帳號/game-spec-checker'；留空則不顯示連結
+const REPO_URL    = 'https://github.com/appmore000-max/blueB';          // 你的 GitHub 專案網址，例如 'https://github.com/你的帳號/game-spec-checker'；留空則不顯示連結
 
 /* 「AI 查詢官方需求」按鈕：呼叫 Anthropic API 上網查資料並自動填表。
  * 在 claude.ai 內預覽時免設定；部署到 GitHub Pages 後要填入 API 金鑰才會動作。
