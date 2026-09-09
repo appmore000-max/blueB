@@ -236,11 +236,21 @@ async function downloadHelper(e){
     const url=URL.createObjectURL(new Blob([txt],{type:'application/octet-stream'}));const b=document.createElement('a');b.href=url;b.download='gsc-helper.bat';document.body.appendChild(b);b.click();b.remove();setTimeout(()=>URL.revokeObjectURL(url),2000);
   }catch(err){window.location.href=a.getAttribute('href');}
 }
+/* 開啟本頁的裝置是手機／平板還是電腦（決定顯示哪一組偵測工具與預設分頁） */
+function deviceKind(){
+  const ua=navigator.userAgent||'';
+  const mobile=/Android|iPhone|iPad|iPod|Mobile/i.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+  return mobile?'mobile':'desktop';
+}
 function initDetect(){
+  const kind=deviceKind();document.body.classList.add(kind==='mobile'?'is-mobile':'is-desktop');
+  if(kind==='desktop'&&/^https?:/.test(location.protocol)){$('pageUrl').textContent=location.origin+location.pathname;$('pageUrlWrap').classList.remove('hide');
+    $('copyUrlBtn').addEventListener('click',async()=>{try{await navigator.clipboard.writeText(location.origin+location.pathname);$('copyUrlBtn').textContent='已複製';}catch(e){$('copyUrlBtn').textContent='請手動複製';}});}
   $('helperBtn').addEventListener('click',()=>connectHelper().catch(e=>{$('detectStatusPC').className='status err';$('detectStatusPC').textContent='連線失敗：'+e.message;}));
   $('helperDl').addEventListener('click',downloadHelper);
   const hp=parseInt(new URLSearchParams(location.search).get('helper'),10);
   if(hp){setTimeout(()=>{setPlat('pc');connectHelper(hp);},0);}
+  else if(kind==='desktop'){setTimeout(()=>setPlat('pc'),0);}   // 電腦開啟預設看「電腦」分頁，手機開啟預設看「手機／平板」
   $('detectBtn').addEventListener('click',()=>detectMobile().catch(e=>{$('detectStatus').className='status err';$('detectStatus').textContent='偵測失敗：'+e.message;}));
   $('detectBtnPC').addEventListener('click',()=>detectPC().catch(e=>{$('detectStatusPC').className='status err';$('detectStatusPC').textContent='偵測失敗：'+e.message;}));
   $('psCopyBtn').addEventListener('click',copyPS);

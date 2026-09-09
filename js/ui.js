@@ -43,13 +43,15 @@ function gamesFor(plat){ return allGames().filter(g=>plat==='pc'?!!g.pc:(!!g.and
 function fillGames(keepId){
   const sel=$('gameSel'), list=gamesFor(state.plat);
   const prev=keepId||sel.value; sel.innerHTML='';
+  const ph=document.createElement('option');ph.value='';ph.textContent='請選擇遊戲';ph.disabled=true;ph.selected=true;sel.appendChild(ph);   // 預設不選任何遊戲
   const cats=[...new Set(list.map(g=>g.cat))];
   cats.forEach(c=>{
     const og=document.createElement('optgroup'); og.label=c;
     list.filter(g=>g.cat===c).forEach(g=>{const o=document.createElement('option');o.value=g.id;o.textContent=g.n+(g.en&&g.en!==g.n?'（'+g.en+'）':'');og.appendChild(o);});
     sel.appendChild(og);
   });
-  if(list.some(g=>g.id===prev)) sel.value=prev;
+  if(prev&&list.some(g=>g.id===prev)) sel.value=prev; else sel.value='';
+  sel.classList.toggle('placeholder',!sel.value);
   updateGameInfo();
 }
 function currentGame(){ const id=$('gameSel').value; return allGames().find(g=>g.id===id)||null; }
@@ -140,7 +142,7 @@ function setMini(lv){
 function run(){
   setMini(null);
   const g=currentGame(), out=$('result');
-  if(!g){out.innerHTML='<div class="result-empty">請先選擇遊戲。</div>';return;}
+  if(!g){out.innerHTML='<div class="result-empty">請先在左邊「1」選擇遊戲，再填你的裝置，這裡就會出現判定：整體結論、每個零件相對於官方最低與建議配備的位置，以及畫質／幀率的預估。</div>';return;}
   let user,res;
   if(state.plat==='pc'){
     user=pcUser();
@@ -409,7 +411,7 @@ function init(){
   if(REPO_URL){['repoLink','repoLink2'].forEach(id=>{const a=$(id);if(a){a.href=REPO_URL;a.classList.remove('hide');}});}
   fillBrands(); fillSocList(); fillPcLists(); fillCustomLists(); fillGames(); setupClearables();
   $('tabMobile').addEventListener('click',()=>setPlat('mobile')); $('tabPC').addEventListener('click',()=>setPlat('pc'));
-  $('gameSel').addEventListener('change',()=>{updateGameInfo();run();});
+  $('gameSel').addEventListener('change',()=>{$('gameSel').classList.toggle('placeholder',!$('gameSel').value);updateGameInfo();run();});
   $('mModeModel').addEventListener('click',()=>setMobileMode('model')); $('mModeSoc').addEventListener('click',()=>setMobileMode('soc')); $('toSocMode').addEventListener('click',()=>setMobileMode('soc'));
   $('mBrand').addEventListener('change',()=>{fillModels();run();}); $('mModel').addEventListener('change',()=>{fillModelRam();run();});
   ['mRamModel','mRamSoc','ram','os','drive','cpuFilter','gpuFilter'].forEach(id=>$(id).addEventListener('change',()=>{if(id==='cpuFilter')refillDatalist('cpu');if(id==='gpuFilter')refillDatalist('gpu');run();}));

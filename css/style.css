@@ -92,6 +92,8 @@ button,input,select,textarea{font:inherit;color:inherit}
 .field .match{font-size:12.5px;margin-top:4px;color:var(--ink-3);min-height:1em}
 .field .match.ok{color:var(--l2)}
 .field .match.bad{color:var(--l0)}
+#gameSel.placeholder{color:var(--ink-3)}
+#gameSel option{color:var(--ink)}
 .gameinfo{font-size:12.5px;color:var(--ink-3);margin-top:6px;line-height:1.7}
 .gameinfo .plat{display:inline-block;border:1px solid var(--rule);border-radius:2px;padding:0 6px;margin-right:4px;font-size:11.5px;color:var(--ink-2);background:var(--white);letter-spacing:.03em}
 
@@ -99,6 +101,9 @@ button,input,select,textarea{font:inherit;color:inherit}
 .detect{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:0 0 6px}
 .detect .hint{font-size:12.5px;color:var(--ink-3)}
 .step .status{margin:0 0 12px}
+/* 依開啟裝置只顯示對應的偵測工具：body 會被加上 is-mobile 或 is-desktop */
+.is-mobile .desktop-only,.is-desktop .mobile-only{display:none !important}
+#pcNote,#mobileNote{background:var(--accent-2);border-radius:var(--radius);padding:8px 12px}
 .guide{border:1px dashed var(--ink-3);background:var(--white);padding:10px 14px;margin:0 0 14px;font-size:13.5px;line-height:1.7}
 .guide ol{margin:4px 0 0;padding-left:1.4em}
 .guide b{font-family:var(--serif)}

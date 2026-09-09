@@ -70,6 +70,8 @@ docs/screenshot.png   README 用截圖
 
 不需要 Actions、不需要 build。本機測試直接用瀏覽器開 `index.html` 即可（`file://` 也能跑）。
 
+更新檔案後網頁沒變化，多半是舊檔案被快取：先按 Ctrl+F5 強制重新整理；仍不行就把 `index.html` 裡 `?v=2.1` 的版本號改一下再上傳，瀏覽器就會重新抓 css／js。按 F12 在 Console 輸入 `APP_VERSION` 可以確認目前載入的是哪一版。
+
 想要單一 HTML 檔（例如丟到 Netlify Drop 或直接傳給朋友）：
 
 ```
